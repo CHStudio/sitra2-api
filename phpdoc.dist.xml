@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+	<title>Sitra2 API Proxy</title>
+	<parser>
+		<target>doc</target>
+		<extensions>
+			<extension>php</extension>
+		</extensions>
+		<visibility></visibility>
+	</parser>
+	<transformer>
+		<target>doc</target>
+	</transformer>
+	<files>
+		<directory>src</directory>
+	</files>
+	<logging>
+		<level>crit</level>
+		<paths>
+			<default>doc/phpdoc/default.log</default>
+			<errors>doc/phpdoc/errors.log</errors>
+		</paths>
+	</logging>
+</phpdoc>
