@@ -8,6 +8,11 @@
 			"email": "s.hulard@chstudio.fr"
 		}
 	],
+	"require": {
+		"php": ">=5.2.0",
+		"ext-json": "*",
+		"ext-curl": "*"
+	},
 	"autoload": {
 		"files": ["src/SitraApi.php"]
 	}
