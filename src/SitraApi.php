@@ -36,11 +36,16 @@ class SitraApi
 	 */
 	const SEARCH = "/recherche/list-objets-touristiques/";
 
+	/**
+	 * Parameter schema defined with validation rules
+	 * This list is used for query construction
+	 * @var array
+	 */
 	protected static $SCHEMA = array(
 		self::GET => array(
 			"responseFields" => "array",
 			"locales" => "array",
-			"id" => "string::detectTypeFromId"
+			"id" => "string::detectTypeFromValue"
 		),
 		//http://www.sitra-rhonealpes.com/wiki/index.php/API_-_services_-_format_de_la_requete
 		self::SEARCH => array(
@@ -57,7 +62,7 @@ class SitraApi
 			"dateDebut" => "/^([0-9]{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/",
 			"dateFin" => "/^([0-9]{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/",
 			"first" => "integer",
-			"count" => "integer",
+			"count" => "integer::max200",
 			"order" => "/NOM|IDENTIFIANT|PERTINENCE|DISTANCE|RANDOM/",
 			"asc" => "boolean",
 			"randomSeed" => "string",
@@ -92,6 +97,13 @@ class SitraApi
 	protected $query;
 
 	/**
+	 * Store the number of results which match the query
+	 * @var integer
+	 */
+	protected $numFound;
+
+	/**
+	 * SitraApi
 	 * @param string $apiKey
 	 * @param string $siteId
 	 */
@@ -133,6 +145,14 @@ class SitraApi
 	}
 
 	/**
+	 * Access the total number of result for the last searched query
+	 * @return integer
+	 */
+	public function getNumFound() {
+		return $this->numFound;
+	}
+
+	/**
 	 * Prepare curl handle resource
 	 * @throws \RunTimeException
 	 */
@@ -156,14 +176,25 @@ class SitraApi
 
 	/**
 	 * Callback used to fill type attribute from the ID one
+	 * @param string $name
 	 */
-	protected function detectTypeFromId() {
-		if( isset($this->query['id']) ) {
-			if( preg_match('/^[0-9]+$/', $this->query['id']) ) {
+	protected function detectTypeFromValue($name) {
+		if( isset($this->query[$name]) ) {
+			if( preg_match('/^[0-9]+$/', $this->query[$name]) ) {
 				$this->query['type'] = 'id';
 			} else {
 				$this->query['type'] = 'identifier';
 			}
+		}
+	}
+
+	/**
+	 * Validate that property set is smaller than 200
+	 * @param string $name
+	 */
+	protected function max200( $name ) {
+		if( $this->query[$name] > 200 ) {
+			throw new \InvalidArgumentException("You can't put a value bigger than 200 to: ".$name);
 		}
 	}
 
@@ -249,7 +280,7 @@ class SitraApi
 		}
 		//If there is a callback, we execute it
 		if( isset($callback) ) {
-			call_user_func(array($this, $callback));
+			call_user_func(array($this, $callback), $name);
 		}
 
 		//The return current instance for fluent
@@ -258,6 +289,7 @@ class SitraApi
 
 	/**
 	 * Start query construction
+	 * @param string $endpoint Must be self::GET or self::SEARCH
 	 * @throws \InvalidArgumentException
 	 * @return SitraApi
 	 */
@@ -271,6 +303,8 @@ class SitraApi
 			"endpoint" => $endpoint,
 			"url" => $this->url($endpoint)
 		);
+		unset($this->numFound);
+
 		return $this;
 	}
 
@@ -280,6 +314,10 @@ class SitraApi
 	 * @return array
 	 */
 	public function search() {
+		if( !isset($this->query['url']) ) {
+			throw new \RunTimeException('You need to call "start" method before trigger a search!');
+		}
+
 		$parts = array();
 		$url = $this->query['url'];
 		preg_match_all('/{([^}]+)}/', $url, $parts);
@@ -314,7 +352,6 @@ class SitraApi
 				curl_setopt($this->handle, CURLOPT_POSTFIELDS, $body);
 				break;
 		}
-		unset($this->query);
 
 		//Execute request
 		curl_setopt($this->handle, CURLOPT_URL, $url);
@@ -333,6 +370,11 @@ class SitraApi
 			throw new \RunTimeException("Can't decode JSON response!");
 		}
 
-		return isset($result->objetsTouristiques)?$result->objetsTouristiques:$result;
+		if( $endpoint === self::SEARCH ) {
+			$this->numFound = $result->numFound;
+			return isset($result->objetsTouristiques)?$result->objetsTouristiques:array();
+		} else {
+			return $result;
+		}
 	}
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit
+  bootstrap="test/bootstrap.php"
+  colors="true"
+  stopOnError="false"
+  stopOnFailure="false"
+  stopOnSkipped="false"
+  stopOnIncomplete="false"
+	backupGlobals="false"
+	processIsolation="false"
+  strict="true"
+  verbose="false"
+  mapTestClassNameToCoveredClassName="true"
+>
+  <testsuites>
+    <testsuite name="Sitra2Api">
+      <file>test/SitraApiTest.php</file>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+    <blacklist>
+      <directory suffix=".php">./vendor</directory>
+    </blacklist>
+  </filter>
+  <logging>
+    <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+    <log type="coverage-html" target="report" showUncoveredFiles="false"/>
+  </logging>
+  <php>
+    <const name="AI_APIKEY" value="IZYsrTrM" />
+    <const name="AI_SITEID" value="1047" />
+  </php>
+</phpunit>
