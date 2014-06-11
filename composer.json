@@ -1,0 +1,14 @@
+{
+	"name": "agenceinteractive/sitra-proxy",
+	"description": "A simple wrapper aroung Sitra API",
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Stephane HULARD",
+			"email": "s.hulard@chstudio.fr"
+		}
+	],
+	"autoload": {
+		"files": ["src/SitraApi.php"]
+	}
+}
