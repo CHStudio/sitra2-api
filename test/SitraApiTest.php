@@ -85,6 +85,16 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @expectedException \InvalidArgumentException
 	 */
+	public function testInvalidRaw() {
+		$this->object
+			->configure(AI_APIKEY, AI_SITEID)
+			->start()
+			->raw('string');
+	}
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
 	public function testBadCriterionFormat() {
 		$this->object
 			->configure(AI_APIKEY, AI_SITEID)
@@ -114,6 +124,7 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 			->count(10)
 			->search();
 	}
+
 	/**
 	 * @expectedException \InvalidArgumentException
 	 */
@@ -148,11 +159,17 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 			->responseFields(['id'])
 			->order('NOM')
 			->count(5)
-			->selectionIds(['25910']);
+			->selectionIds([AI_SELECTIONID]);
+		$this->assertTrue($this->object->check());
 		$result = $this->object->search();
 
 		$this->assertCount(5, $result);
 		$this->assertEquals(182, $this->object->getNumFound());
+
+		$criteria = $this->object->getCriteria();
+		$this->assertEquals([AI_SELECTIONID], $criteria['selectionIds']);
+		$this->assertEquals(5, $criteria['count']);
+		$this->assertEquals('NOM', $criteria['order']);
 	}
 
 	public function testConfigureAndGet() {
@@ -160,6 +177,18 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 			->configure(AI_APIKEY, AI_SITEID)
 			->start(SitraApi::GET)
 			->id('162222')
+			->search();
+
+		$this->assertEquals(162222, $result->id);
+		$this->assertEquals('PATRIMOINE_NATUREL', $result->type);
+		$this->assertEquals("Pas du Frou" , $result->nom->libelleFr);
+	}
+
+	public function testConfigureRawAndGet() {
+		$result = $this->object
+			->configure(AI_APIKEY, AI_SITEID)
+			->start(SitraApi::GET)
+			->raw(["id"=>'162222'])
 			->search();
 
 		$this->assertEquals(162222, $result->id);

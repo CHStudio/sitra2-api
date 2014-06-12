@@ -32,5 +32,6 @@
   <php>
     <const name="AI_APIKEY" value="IZYsrTrM" />
     <const name="AI_SITEID" value="1047" />
+    <const name="AI_SELECTIONID" value="25910" />
   </php>
 </phpunit>
