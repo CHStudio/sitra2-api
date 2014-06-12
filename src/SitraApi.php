@@ -94,7 +94,7 @@ class SitraApi
 	 * Query that will be executed on the next exec method run
 	 * @var array
 	 */
-	protected $query;
+	protected $criteria;
 
 	/**
 	 * Store the number of results which match the query
@@ -129,9 +129,9 @@ class SitraApi
 	 */
 	public function check() {
 		$this->prepareCurlHandle();
-		curl_setopt($this->handle, CURLOPT_NOBODY, true);
+		curl_setopt($this->handle, CURLOPT_NOBODY, false);
 		curl_setopt($this->handle, CURLOPT_POST, false);
-		curl_setopt($this->handle, CURLOPT_URL, $this->url());
+		curl_setopt($this->handle, CURLOPT_URL, $this->url().'?query='.urlencode(json_encode($this->getCredentials())));
 		curl_exec($this->handle);
 		return curl_getinfo($this->handle, CURLINFO_HTTP_CODE) === 200;
 	}
@@ -153,13 +153,32 @@ class SitraApi
 	}
 
 	/**
+	 * Retrieve the built query. This method must be call before search because query is cleaned in search
+	 * @return array
+	 */
+	public function getCriteria() {
+		return $this->criteria;
+	}
+
+	/**
+	 * Inject credentials in the given query
+	 * @param array $a
+	 * @return array
+	 */
+	public function getCredentials($a = array()) {
+		$a['apiKey'] = $this->apiKey;
+		$a['siteWebExportIdV1'] = $this->siteId;
+		return $a;
+	}
+
+	/**
 	 * Prepare curl handle resource
 	 * @throws \RunTimeException
 	 */
 	private function prepareCurlHandle() {
 		//Check that configuration is defined
 		if( $this->apiKey === null || $this->siteId === null ) {
-			throw new \RunTimeException(
+			throw new RunTimeException(
 				"You need to configure your SitraApi instance with an Api key and a Site identifier!"
 			);
 		}
@@ -179,11 +198,11 @@ class SitraApi
 	 * @param string $name
 	 */
 	protected function detectTypeFromValue($name) {
-		if( isset($this->query[$name]) ) {
-			if( preg_match('/^[0-9]+$/', $this->query[$name]) ) {
-				$this->query['type'] = 'id';
+		if( isset($this->criteria[$name]) ) {
+			if( preg_match('/^[0-9]+$/', $this->criteria[$name]) ) {
+				$this->criteria['type'] = 'id';
 			} else {
-				$this->query['type'] = 'identifier';
+				$this->criteria['type'] = 'identifier';
 			}
 		}
 	}
@@ -193,8 +212,8 @@ class SitraApi
 	 * @param string $name
 	 */
 	protected function max200( $name ) {
-		if( $this->query[$name] > 200 ) {
-			throw new \InvalidArgumentException("You can't put a value bigger than 200 to: ".$name);
+		if( $this->criteria[$name] > 200 ) {
+			throw new InvalidArgumentException("You can't put a value bigger than 200 to: ".$name);
 		}
 	}
 
@@ -221,7 +240,7 @@ class SitraApi
 			}
 		}
 		if( count( $valid ) > 0 ) {
-			$this->query[$name] = $valid;
+			$this->criteria[$name] = $valid;
 		}
 	}
 
@@ -236,15 +255,15 @@ class SitraApi
 	 */
 	public function __call( $name, $arguments = array() ) {
 		if( !isset($this->query) ) {
-			throw new \RunTimeException('You must call "start" method before adding some criteria!');
+			throw new RunTimeException('You must call "start" method before adding some criteria!');
 		}
 
 		$schema = self::$SCHEMA[$this->query['endpoint']];
 		if(!array_key_exists($name, $schema)) {
-			throw new \BadMethodCallException('You can\'t set "'.$name.'" criterion on the selected endpoint: '.$this->query['endpoint']);
+			throw new BadMethodCallException('You can\'t set "'.$name.'" criterion on the selected endpoint: '.$this->query['endpoint']);
 		}
 		if( count($arguments) != 1 ) {
-			throw new \InvalidArgumentException('You can only give one argument to this method!');
+			throw new InvalidArgumentException('You can only give one argument to this method!');
 		}
 
 		//Extract some useful vars
@@ -256,18 +275,18 @@ class SitraApi
 			$rules = substr($rules, 0, $pos);
 		}
 		//Remove previously set value
-		unset($this->query[$name]);
+		unset($this->criteria[$name]);
 
 		//Sometimes we use regex to validate value
 		if( strpos($rules, '/') !== false ) {
 			if( $type === "string" && preg_match($rules, $value) ) {
-				$this->query[$name] = $value;
+				$this->criteria[$name] = $value;
 			}
 		//Sometime we use the type
 		} else {
 			//If this is a simple type
 			if( $type !== "array" && $type === $rules ) {
-				$this->query[$name] = $value;
+				$this->criteria[$name] = $value;
 			//If there is a complex type to check (sub array types)
 			} elseif( substr($rules, 0, 5) === 'array' && $type === 'array' ) {
 				$this->validateArray($name, $rules, $value);
@@ -275,8 +294,8 @@ class SitraApi
 		}
 
 		//If the property is not same, it does not match schema rules
-		if( !isset($this->query[$name]) ) {
-			throw new \InvalidArgumentException('Given value can\'t be used to set "'.$name.'", you need to be: "'.$rules.'"');
+		if( !isset($this->criteria[$name]) ) {
+			throw new InvalidArgumentException('Given value can\'t be used to set "'.$name.'", you need to be: "'.$rules.'"');
 		}
 		//If there is a callback, we execute it
 		if( isset($callback) ) {
@@ -295,16 +314,31 @@ class SitraApi
 	 */
 	public function start($endpoint = self::SEARCH) {
 		if( !in_array($endpoint, array(self::GET, self::SEARCH)) ) {
-			throw new \InvalidArgumentException("You must specified a valid endpoint constant SitraApi::GET or SitraApi::LIST");
+			throw new InvalidArgumentException("You must specified a valid endpoint constant SitraApi::GET or SitraApi::LIST");
 		}
 		$this->prepareCurlHandle();
 
-		$this->query = array(
-			"endpoint" => $endpoint,
-			"url" => $this->url($endpoint)
-		);
+		$this->criteria = $this->query = array();
+		$this->query["endpoint"] = $endpoint;
+		$this->query["url"] = $this->url($endpoint);
 		unset($this->numFound);
 
+		return $this;
+	}
+
+	/**
+	 * Apply a raw query to current search
+	 * Used when the same query is repeated multiple times
+	 * @param array $query
+	 * @return SitraApi
+	 */
+	public function raw($query) {
+		if( !is_array($query) ) {
+			throw new InvalidArgumentException('You must give an array which contains the query!!');
+		}
+		foreach( $query as $key => $value ) {
+			call_user_func(array($this, $key), $value);
+		}
 		return $this;
 	}
 
@@ -315,43 +349,40 @@ class SitraApi
 	 */
 	public function search() {
 		if( !isset($this->query['url']) ) {
-			throw new \RunTimeException('You need to call "start" method before trigger a search!');
+			throw new RunTimeException('You need to call "start" method before trigger a search!');
 		}
 
+		extract($this->query);
+
 		$parts = array();
-		$url = $this->query['url'];
 		preg_match_all('/{([^}]+)}/', $url, $parts);
 		if( isset($parts[1]) ) {
 			foreach( $parts[1] as $part ) {
-				if( !isset($this->query[$part]) ) {
-					throw new \RunTimeException('You need to define "'.$part.'" parameter before execute the query');
+				if( !isset($this->criteria[$part]) ) {
+					throw new RunTimeException('You need to define "'.$part.'" parameter before execute the query');
 				}
-				$url = str_replace('{'.$part.'}', $this->query[$part], $url);
-				unset($this->query[$part]);
+				$url = str_replace('{'.$part.'}', $this->criteria[$part], $url);
+				unset($this->criteria[$part]);
 			}
 		}
 
-		$endpoint = $this->query['endpoint'];
-		unset($this->query['url']);
-		unset($this->query['endpoint']);
-
 		//Add credentials and format Query
-		$this->query['apiKey'] = $this->apiKey;
-		$this->query['siteWebExportIdV1'] = $this->siteId;
+		$criteria = $this->getCredentials($this->criteria);
 		$body = "";
-		switch( $endpoint ) {
+		switch( $this->query['endpoint'] ) {
 			case self::GET:
 				$url .= '?';
-				foreach( $this->query as $name => $value ) {
+				foreach( $criteria as $name => $value ) {
 					$url .= $name.'='.(is_array($value)?implode(',',$value):$value).'&';
 				}
 				curl_setopt($this->handle, CURLOPT_POST, false);
 				break;
 			case self::SEARCH:
-				$body = "query=".json_encode($this->query);
+				$body = "query=".json_encode($criteria);
 				curl_setopt($this->handle, CURLOPT_POSTFIELDS, $body);
 				break;
 		}
+		unset($this->query);
 
 		//Execute request
 		curl_setopt($this->handle, CURLOPT_URL, $url);
@@ -360,14 +391,14 @@ class SitraApi
 
 		//Manage some cURL execution errors
 		if( curl_getinfo($this->handle, CURLINFO_HTTP_CODE) !== 200 ) {
-			throw new \RunTimeException(
+			throw new RunTimeException(
 				'Processed request return a "'.$info['http_code'].'" HTTP: '.PHP_EOL.
 				$info['request_header'].
 				"BODY: ".PHP_EOL.
 				$body);
 		}
 		if( ($result = json_decode($result)) === null ) {
-			throw new \RunTimeException("Can't decode JSON response!");
+			throw new RunTimeException("Can't decode JSON response!");
 		}
 
 		if( $endpoint === self::SEARCH ) {
