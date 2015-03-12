@@ -1,4 +1,4 @@
-# Proxy d'interrogation de l'API Sitra 2 v0.0.0
+# Proxy d'interrogation de l'API Sitra 2 v0.1.0
 
 [![Build Status](https://travis-ci.org/CHStudio/sitra2-proxy.svg?branch=develop)](https://travis-ci.org/CHStudio/sitra2-proxy) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/CHStudio/sitra2-proxy/badges/quality-score.png?s=e908698796250470837da1aee3d5f1de58abe42b)](https://scrutinizer-ci.com/g/CHStudio/sitra2-proxy/) [![Code Coverage](https://scrutinizer-ci.com/g/CHStudio/sitra2-proxy/badges/coverage.png?s=458223269fcf1205044aaa271d0bbfc08f1c7f95)](https://scrutinizer-ci.com/g/CHStudio/sitra2-proxy/)
 
@@ -30,8 +30,12 @@ Ces informations doivent être définies pour chaque instance du proxy soit à l
 
 ```php
 <?php
-$api = new SitraApi("APIKEY", "PROJECTID");
+$api = new SitraApi();
 $api->configure("APIKEY", "PROJECTID");
+
+//Or to use the API v1
+$api = new SitraApi(SitraApi::V001);
+$api->configure("APIKEY", "SITEWEBEXPORTIDV1");
 ```
 
 #### Utilisation ####
