@@ -1,5 +1,7 @@
 # Proxy d'interrogation de l'API Sitra 2 #
 
+[![Build Status](https://travis-ci.org/CHStudio/sitra2-proxy.svg?branch=develop)](https://travis-ci.org/CHStudio/sitra2-proxy) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/CHStudio/sitra2-proxy/badges/quality-score.png?s=e908698796250470837da1aee3d5f1de58abe42b)](https://scrutinizer-ci.com/g/CHStudio/sitra2-proxy/) [![Code Coverage](https://scrutinizer-ci.com/g/CHStudio/sitra2-proxy/badges/coverage.png?s=458223269fcf1205044aaa271d0bbfc08f1c7f95)](https://scrutinizer-ci.com/g/CHStudio/sitra2-proxy/)
+
 Ce projet a pour objectif de rendre accessible facilement en PHP l'API d'interrogation et de recherche [Sitra2](http://www.sitra-rhonealpes.com/wiki/index.php/API_Sitra_2). Cette API permet aux utilisateurs de Sitra de rechercher dans les objets ou d'accéder à un objet pour consulter tous les détails.
 
 Composer a été utilisé pour décrire le projet et le rendre utilisable comme composant.
@@ -15,6 +17,8 @@ Pour pouvoir utiliser cette librairie, il faut simplement l'inclure...
 <?php
 require_once "[chemin vers le fichier]src/SitraApi.php";
 ```
+
+#### Ou alors utiliser composer ####
 
 #### Configuration #####
 
