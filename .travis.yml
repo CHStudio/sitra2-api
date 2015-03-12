@@ -6,9 +6,8 @@ php:
   - 5.3
   - 5.2
 before_install:
-  - phpenv global 5.3
-  - composer install --no-interaction --prefer-source
-  - phpenv global "$TRAVIS_PHP_VERSION"
+  - wget http://getcomposer.org/composer.phar
+  - php composer.phar install --no-interaction --prefer-source
 script: bin/phpunit --coverage-clover=coverage.clover
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
