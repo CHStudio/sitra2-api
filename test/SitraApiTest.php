@@ -78,7 +78,7 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testCriterionWithoutStart() {
 		$this->object
-			->responseFields(["id"])
+			->responseFields(array("id"))
 			->search();
 	}
 
@@ -132,7 +132,7 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 		$this->object
 			->configure(AI_APIKEY, AI_SITEID)
 			->start()
-			->membreProprietaireIds([841])
+			->membreProprietaireIds(array(841))
 			->count(500) //Sitra always return a max of 200
 			->search();
 	}
@@ -156,10 +156,10 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 		$this->object
 			->configure(AI_APIKEY, AI_SITEID)
 			->start()
-			->responseFields(['id'])
+			->responseFields(array('id'))
 			->order('NOM')
 			->count(5)
-			->selectionIds([AI_SELECTIONID]);
+			->selectionIds(array(AI_SELECTIONID));
 		$this->assertTrue($this->object->check());
 		$result = $this->object->search();
 
@@ -167,7 +167,7 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(10, $this->object->getNumFound());
 
 		$criteria = $this->object->getCriteria();
-		$this->assertEquals([AI_SELECTIONID], $criteria['selectionIds']);
+		$this->assertEquals(array(AI_SELECTIONID), $criteria['selectionIds']);
 		$this->assertEquals(5, $criteria['count']);
 		$this->assertEquals('NOM', $criteria['order']);
 	}
@@ -188,7 +188,7 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 		$result = $this->object
 			->configure(AI_APIKEY, AI_SITEID)
 			->start(SitraApi::GET)
-			->raw(["id"=>'162222'])
+			->raw(array("id"=>'162222'))
 			->search();
 
 		$this->assertEquals(162222, $result->id);
