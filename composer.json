@@ -1,7 +1,7 @@
 {
-	"name": "agenceinteractive/sitra-proxy",
+	"name": "chstudio/sitra2-proxy",
 	"description": "A simple wrapper aroung Sitra API",
-	"license": "proprietary",
+	"license": "Apache-2.0",
 	"authors": [
 		{
 			"name": "Stephane HULARD",
@@ -12,6 +12,12 @@
 		"php": ">=5.2.0",
 		"ext-json": "*",
 		"ext-curl": "*"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "~4.0"
+	},
+	"config": {
+		"bin-dir": "bin"
 	},
 	"autoload": {
 		"files": ["src/SitraApi.php"]

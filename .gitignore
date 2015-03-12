@@ -1,3 +1,15 @@
+#System files
+.DS_Store
+*~
+
+#IDE project files
+*.esproj
+nbproject
+.idea
+*.sublime-project
+*.sublime-workspace
+
 /vendor/
 /doc/
 /report/
+/bin/

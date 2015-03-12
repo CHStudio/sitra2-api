@@ -164,7 +164,7 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 		$result = $this->object->search();
 
 		$this->assertCount(5, $result);
-		$this->assertEquals(182, $this->object->getNumFound());
+		$this->assertEquals(10, $this->object->getNumFound());
 
 		$criteria = $this->object->getCriteria();
 		$this->assertEquals([AI_SELECTIONID], $criteria['selectionIds']);
