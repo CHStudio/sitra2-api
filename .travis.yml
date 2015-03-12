@@ -5,7 +5,7 @@ php:
   - 5.4
   - 5.3
   - 5.2
-install:
+before_install:
   - phpenv global 5.3
   - composer install --no-interaction --prefer-source
   - phpenv global "$TRAVIS_PHP_VERSION"
