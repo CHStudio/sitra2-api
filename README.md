@@ -12,8 +12,7 @@ Composer a été utilisé pour décrire le projet et le rendre utilisable comme 
 
 Pour pouvoir utiliser cette librairie, il faut simplement l'inclure...
 
-```
-#!php
+```php
 <?php
 require_once "[chemin vers le fichier]src/SitraApi.php";
 ```
@@ -29,8 +28,7 @@ Tous les appels à l'API doivent être authentifiés par deux clés :
 
 Ces informations doivent être définies pour chaque instance du proxy soit à la construction soit en utilisant la méthode **configure**.
 
-```
-#!php
+```php
 <?php
 $api = new SitraApi("APIKEY", "PROJECTID");
 $api->configure("APIKEY", "PROJECTID");
@@ -42,8 +40,7 @@ Toutes les propriétés utilisables en recherche sont traduites en méthodes. Le
 
 On démarre une requête en utilisant la méthode **start** et on l'exécute en utilisant la méthode **search**. L'objet utilise une interface chainable, toutes les méthodes sont applicables très rapidement. Pour la liste complète des méthodes, ouvrez le ficher SitraApi, le schéma y est décrit.
 
-```
-#!php
+```php
 <?php
 //Récupération d'une liste de 100 objets à partir du 10ème
 $results = $api
@@ -58,8 +55,7 @@ $results = $api
 
 PHPUnit a été utilisé pour créer les tests unitaires. Pour pouvoir les exécuter, il faut installer les dépendances **composer** en exécutant la commande suivante à la racine du projet :
 
-```
-#!bash
+```Shell
 
 composer install
 ```
