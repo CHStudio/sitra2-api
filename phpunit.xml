@@ -8,13 +8,14 @@
   stopOnIncomplete="false"
 	backupGlobals="false"
 	processIsolation="false"
-  strict="true"
   verbose="false"
   mapTestClassNameToCoveredClassName="true"
 >
   <testsuites>
     <testsuite name="Sitra2Api">
       <file>test/SitraApiTest.php</file>
+      <file>test/SitraApiV1Test.php</file>
+      <file>test/SitraApiV2Test.php</file>
     </testsuite>
   </testsuites>
   <filter>

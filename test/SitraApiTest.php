@@ -11,7 +11,7 @@
 /**
  * SitraApi wrapper test
  */
-class SitraApiTest extends \PHPUnit_Framework_TestCase
+abstract class SitraApiTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * @var SitraApi
@@ -145,7 +145,7 @@ class SitraApiTest extends \PHPUnit_Framework_TestCase
 		$prop->setAccessible(true);
 		$this->assertEquals("someApi", $prop->getValue($this->object));
 
-		$prop = $this->reflection->getProperty('siteId');
+		$prop = $this->reflection->getProperty('projetId');
 		$prop->setAccessible(true);
 		$this->assertEquals("someSiteId", $prop->getValue($this->object));
 
