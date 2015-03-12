@@ -10,14 +10,31 @@ Composer a été utilisé pour décrire le projet et le rendre utilisable comme 
 
 #### Installation ####
 
-Pour pouvoir utiliser cette librairie, il faut simplement l'inclure...
+#### En utilisant composer ####
+
+Il suffit de rajouter le dépôt Github dans le fichier ```composer.json``` lancer la commande suivante
+
+```JSON
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/CHStudio/sitra2-proxy"
+    }
+  ]
+}
+```
+
+```Shell
+composer update chstudio/sitra2-proxy
+```
+
+#### Ou en inclusion directe... ####
 
 ```php
 <?php
 require_once "[chemin vers le fichier]src/SitraApi.php";
 ```
-
-#### Ou alors utiliser composer ####
 
 #### Configuration #####
 
@@ -60,7 +77,6 @@ $results = $api
 PHPUnit a été utilisé pour créer les tests unitaires. Pour pouvoir les exécuter, il faut installer les dépendances **composer** en exécutant la commande suivante à la racine du projet :
 
 ```Shell
-
 composer install
 ```
 
