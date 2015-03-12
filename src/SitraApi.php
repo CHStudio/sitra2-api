@@ -14,14 +14,15 @@
 class SitraApi
 {
 	/**
+	 * Define sitra API versions
+	 */
+	const V001 = 'v001';
+	const V002 = 'v002';
+
+	/**
 	 * Root URL for all API calls
 	 */
 	const BASE = "http://api.sitra-tourisme.com/api/";
-
-	/**
-	 * Sitra API version used
-	 */
-	const VERSION = "v001";
 
 	/**
 	 * Get by id endpoint
@@ -73,6 +74,12 @@ class SitraApi
 	);
 
 	/**
+	 * Sitra API version used
+	 * @var string
+	 */
+	protected $version = self::V001;
+
+	/**
 	 * Sitra API key, found in project details
 	 * @var string
 	 */
@@ -82,7 +89,7 @@ class SitraApi
 	 * Sitra project identifier
 	 * @var string
 	 */
-	protected $siteId;
+	protected $projetId;
 
 	/**
 	 * cURL handle used to perform requests
@@ -105,21 +112,38 @@ class SitraApi
 	/**
 	 * SitraApi
 	 * @param string $apiKey
-	 * @param string $siteId
+	 * @param string $projetId
 	 */
-	public function __construct($apiKey = null, $siteId = null) {
-		$this->configure($apiKey, $siteId);
+	public function __construct($version = null) {
+		if( !isset($version) ) {
+			$version = self::V002;
+		}
+		$this->version($version);
 	}
 
 	/**
 	 * Set access to sitra endpoint API
 	 * @param string $apiKey
-	 * @param string $siteId
+	 * @param string $projetId
+	 * @return SitraApi
 	 */
-	public function configure($apiKey, $siteId) {
+	public function configure($apiKey, $projetId) {
 		$this->apiKey = $apiKey;
-		$this->siteId = $siteId;
+		$this->projetId = $projetId;
 
+		return $this;
+	}
+
+	/**
+	 * Set Sitra2 API version to use
+	 * @return SitraApi
+	 * @throws \RuntimeException
+	 */
+	public function version($version) {
+		if( $version !== self::V001 && $version !== self::V002 ) {
+			throw new \RuntimeException('Invalid API version: '.$version);
+		}
+		$this->version = $version;
 		return $this;
 	}
 
@@ -141,7 +165,7 @@ class SitraApi
 	 * @param string $endpoint
 	 */
 	public function url($endpoint = self::SEARCH) {
-		return self::BASE.self::VERSION.$endpoint;
+		return self::BASE.$this->version.$endpoint;
 	}
 
 	/**
@@ -167,7 +191,7 @@ class SitraApi
 	 */
 	public function getCredentials($a = array()) {
 		$a['apiKey'] = $this->apiKey;
-		$a['siteWebExportIdV1'] = $this->siteId;
+		$a[$this->version==='v001'?'siteWebExportIdV1':'projetId'] = $this->projetId;
 		return $a;
 	}
 
@@ -177,7 +201,7 @@ class SitraApi
 	 */
 	private function prepareCurlHandle() {
 		//Check that configuration is defined
-		if( $this->apiKey === null || $this->siteId === null ) {
+		if( $this->apiKey === null || $this->projetId === null ) {
 			throw new RunTimeException(
 				"You need to configure your SitraApi instance with an Api key and a Site identifier!"
 			);
